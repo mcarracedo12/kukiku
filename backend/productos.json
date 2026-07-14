@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "nombre": "Polerones",
+    "imagen": "polerones.png",
+    "descripcion": "Polerones abrigados tejidos a mano, ideales para el invierno profundo."
+  },
+  {
+    "id": 2,
+    "nombre": "Pullover",
+    "imagen": "pullover.png",
+    "descripcion": "Pullovers clásicos con diseños únicos y calce cómodo."
+  },
+  {
+    "id": 3,
+    "nombre": "Chalecos",
+    "imagen": "chalecos.png",
+    "descripcion": "Chalecos versátiles para usar sobre camisas o remeras."
+  },
+  {
+    "id": 4,
+    "nombre": "Gorritos",
+    "imagen": "gorritos.png",
+    "descripcion": "Gorritos de lana súper suaves para protegerte del frío."
+  },
+  {
+    "id": 5,
+    "nombre": "Bufandas",
+    "imagen": "bufandas.png",
+    "descripcion": "Bufandas largas y abrigadas con terminaciones artesanales."
+  },
+  {
+    "id": 6,
+    "nombre": "Chalinas",
+    "imagen": "chalinas.png",
+    "descripcion": "Chalinas livianas, el accesorio perfecto para media estación."
+  },
+  {
+    "id": 7,
+    "nombre": "Guantes",
+    "imagen": "guantes.png",
+    "descripcion": "Guantes tejidos fijos que se adaptan a tus manos."
+  },
+  {
+    "id": 8,
+    "nombre": "Mitones",
+    "imagen": "mitones.png",
+    "descripcion": "Mitones prácticos para abrigarte manteniendo los dedos libres."
+  },
+  {
+    "id": 9,
+    "nombre": "Polainas",
+    "imagen": "polainas.png",
+    "descripcion": "Polainas cómodas para sumar estilo y calor a tus piernas."
+  },
+  {
+    "id": 10,
+    "nombre": "Musculosas",
+    "imagen": "musculosas.png",
+    "descripcion": "Musculosas tejidas en hilo, frescas y caladas para los días lindos."
+  },
+  {
+    "id": 11,
+    "nombre": "Bikinis",
+    "imagen": "bikinis.png",
+    "descripcion": "Bikinis diseñados para brindar comodidad y estilo en la playa."
+  }
+]

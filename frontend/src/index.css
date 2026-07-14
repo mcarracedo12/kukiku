@@ -1,0 +1,26 @@
+:root {
+  /* Paleta Alegre y Liviana para Kukiku */
+  --background: #fbf9ff;
+  /* Un blanco con una gotita de violeta, súper suave */
+ --text-main: #833ab4;     
+ /* Violeta vibrante para títulos principales */
+  --text-muted: #5d3d68;    
+  /* Un berenjena más suave para que los textos largos sigan siendo legibles */
+
+  --accent-fucsia: #ff7ebb;
+  /* Fucsia alegre pero pastel */
+  --accent-violeta: #b388ff;
+  /* Violeta claro y brillante */
+  --accent-verde: #80e5d0;
+  /* Verde agua fresco */
+
+  --border: #f0e6f5;
+  /* Bordes sutiles en tono lila muy claro */
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--background);
+  color: var(--text-main);
+}
