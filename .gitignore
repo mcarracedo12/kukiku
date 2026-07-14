@@ -10,10 +10,6 @@ frontend/.env.*.local
 # --- Dependencias del Backend ---
 backend/node_modules/
 
-# --- Archivos de desarrollo e imágenes ---
-frontend/public/productos/*
-!frontend/public/productos/.gitkeep
-
 # --- Logs de error ---
 logs
 *.log
