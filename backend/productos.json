@@ -42,12 +42,6 @@
     "descripcion": "Guantes tejidos fijos que se adaptan a tus manos."
   },
   {
-    "id": 8,
-    "nombre": "Mitones",
-    "imagen": "mitones.png",
-    "descripcion": "Mitones prácticos para abrigarte manteniendo los dedos libres."
-  },
-  {
     "id": 9,
     "nombre": "Polainas",
     "imagen": "polainas.png",
@@ -58,11 +52,5 @@
     "nombre": "Musculosas",
     "imagen": "musculosas.png",
     "descripcion": "Musculosas tejidas en hilo, frescas y caladas para los días lindos."
-  },
-  {
-    "id": 11,
-    "nombre": "Bikinis",
-    "imagen": "bikinis.png",
-    "descripcion": "Bikinis diseñados para brindar comodidad y estilo en la playa."
   }
 ]
