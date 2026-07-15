@@ -3,16 +3,20 @@ import './App.css'
 
 function App() {
   const [productos, setProductos] = useState([])
-  const TELEFONO_KUKIKU = "5493544407796"
+  const TELEFONO_KUKIKU = "5491123456789"
 
-  // Estado para controlar los campos del formulario
+  // --- ESTADOS PARA ADMINISTRACIÓN ---
+  const [isAdmin, setIsAdmin] = useState(false) // Controla si Estela está logueada
+  const [isModalOpen, setIsModalOpen] = useState(false) // Controla si se muestra el modal
+  const [password, setPassword] = useState('') // El input de la contraseña
+
   const [nuevoProducto, setNuevoProducto] = useState({
     nombre: '',
     descripcion: '',
-    imagen: null // Ahora arranca en null porque va a ser un objeto File
+    imagen: null
   })
 
-  // Cargar productos al iniciar (GET)
+  // Cargar productos al iniciar
   const cargarProductos = () => {
     fetch('http://localhost:5000/api/productos')
       .then(response => response.json())
@@ -22,36 +26,36 @@ function App() {
 
   useEffect(() => {
     cargarProductos()
+    // Si ya había iniciado sesión antes, la recordamos (opcional)
+    const sesionGuardada = localStorage.getItem('kukiku_admin')
+    if (sesionGuardada === 'true') {
+      setIsAdmin(true)
+    }
   }, [])
 
-  // Guardar nuevo producto (POST)
+  // Guardar nuevo producto
   const handleGuardar = (e) => {
     e.preventDefault()
-
-    // Creamos el contenedor especial para enviar el archivo
+    
     const formData = new FormData()
     formData.append('nombre', nuevoProducto.nombre)
     formData.append('descripcion', nuevoProducto.descripcion)
-    formData.append('imagen', nuevoProducto.imagen) // Adjuntamos la foto real
+    formData.append('imagen', nuevoProducto.imagen)
 
     fetch('http://localhost:5000/api/productos', {
       method: 'POST',
-      // IMPORTANTE: Al enviar FormData NO hay que poner el header 'Content-Type'
-      // El navegador lo configura automáticamente con el "boundary" necesario.
-      body: formData
+      body: formData 
     })
       .then(res => res.json())
       .then(() => {
-        // Limpiamos el formulario
         setNuevoProducto({ nombre: '', descripcion: '', imagen: null })
-        // Reseteamos visualmente el selector de archivos del HTML
         document.getElementById('file-input').value = ''
-        cargarProductos() // Recargamos la grilla
+        cargarProductos()
       })
       .catch(err => console.error("Error al guardar:", err))
   }
 
-  // Eliminar producto (DELETE)
+  // Eliminar producto
   const handleEliminar = (id) => {
     if (confirm("¿Estás segura de que querés eliminar este producto?")) {
       fetch(`http://localhost:5000/api/productos/${id}`, {
@@ -60,6 +64,26 @@ function App() {
         .then(() => cargarProductos())
         .catch(err => console.error("Error al eliminar:", err))
     }
+  }
+
+  // Manejo del Login de Estela
+  const handleLoginSubmit = (e) => {
+    e.preventDefault()
+    // Definimos una contraseña simple de ejemplo. Podés cambiarla por la que quieras.
+    if (password === 'estela123') { 
+      setIsAdmin(true)
+      setIsModalOpen(false)
+      setPassword('')
+      localStorage.setItem('kukiku_admin', 'true') // Mantiene la sesión iniciada
+    } else {
+      alert('Contraseña incorrecta 🧶')
+    }
+  }
+
+  // Cerrar sesión
+  const handleLogout = () => {
+    setIsAdmin(false)
+    localStorage.removeItem('kukiku_admin')
   }
 
   const crearLinkWhatsApp = (nombreProducto) => {
@@ -96,14 +120,14 @@ function App() {
         <div className="productos-grid">
           {productos.map(prod => (
             <div key={prod.id} className="producto-card">
-              <img
-                src={`/productos/${prod.imagen || 'placeholder.png'}`}
-                alt={`${prod.nombre} tejido a mano en Traslasierra`}
-                className="producto-imagen"
+              <img 
+                src={`/productos/${prod.imagen || 'placeholder.png'}`} 
+                alt={`${prod.nombre} tejido a mano`} 
+                className="producto-imagen" 
               />
               <h3>{prod.nombre}</h3>
               <p>{prod.descripcion}</p>
-
+              
               <div className="whatsapp-container">
                 <span className="whatsapp-texto">Consultar:</span>
                 <a href={crearLinkWhatsApp(prod.nombre)} target="_blank" rel="noopener noreferrer">
@@ -111,66 +135,110 @@ function App() {
                 </a>
               </div>
 
-              {/* Botón de eliminar rápido para administración temporal */}
-              <div className="admin-actions-card">
-                <button className="btn-delete" onClick={() => handleEliminar(prod.id)}>
-                  🗑️ Eliminar Producto
-                </button>
-              </div>
+              {/* Botón de eliminar: SOLO VISIBLE SI ESTELA INICIÓ SESIÓN */}
+              {isAdmin && (
+                <div className="admin-actions-card">
+                  <button className="btn-delete" onClick={() => handleEliminar(prod.id)}>
+                    🗑️ Eliminar Producto
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
 
-        {/* PANEL DEL FORMULARIO CON GRADIENTE */}
-        <section className="admin-panel">
-          <h2>Panel de Administración 🎨</h2>
-          <p className="admin-subtitle">Subí tus nuevos tejidos artesanales al catálogo al instante</p>
+        {/* PANEL DEL FORMULARIO CON GRADIENTE: SOLO VISIBLE SI ESTA LOGUEADA */}
+        {isAdmin && (
+          <section className="admin-panel">
+            <h2>Panel de Administración 🎨</h2>
+            <p className="admin-subtitle">Subí tus nuevos tejidos artesanales al catálogo al instante</p>
 
-          <form className="admin-form" onSubmit={handleGuardar}>
-            <div className="form-group">
-              <label>Nombre de la prenda: *</label>
-              <input
-                type="text"
-                placeholder="Ej. Saco de lana Merino"
-                className="form-input"
-                required // <--- Campo obligatorio
-                value={nuevoProducto.nombre}
-                onChange={e => setNuevoProducto({ ...nuevoProducto, nombre: e.target.value })}
-              />
-            </div>
+            <form className="admin-form" onSubmit={handleGuardar}>
+              <div className="form-group">
+                <label>Nombre de la prenda:</label>
+                <input 
+                  type="text" 
+                  placeholder="Ej. Saco de lana Merino" 
+                  className="form-input"
+                  required
+                  value={nuevoProducto.nombre}
+                  onChange={e => setNuevoProducto({...nuevoProducto, nombre: e.target.value})}
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Descripción / Talles / Colores: *</label>
-              <textarea
-                rows="3"
-                placeholder="Ej. Tejido a dos agujas en talle M y L. Súper abrigado."
-                className="form-input"
-                required // <--- Campo obligatorio
-                value={nuevoProducto.descripcion}
-                onChange={e => setNuevoProducto({ ...nuevoProducto, descripcion: e.target.value })}
-              />
-            </div>
+              <div className="form-group">
+                <label>Descripción / Talles / Colores:</label>
+                <textarea 
+                  rows="3"
+                  placeholder="Ej. Tejido a dos agujas en talle M y L." 
+                  className="form-input"
+                  required
+                  value={nuevoProducto.descripcion}
+                  onChange={e => setNuevoProducto({...nuevoProducto, descripcion: e.target.value})}
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Foto de la prenda: *</label>
-              <input
-                id="file-input"
-                type="file"
-                accept="image/*" // <--- Solo permite subir fotos
-                className="form-input"
-                required // <--- Campo obligatorio
-                onChange={e => setNuevoProducto({ ...nuevoProducto, imagen: e.target.files[0] })} // Guarda el archivo físico
-              />
-            </div>
+              <div className="form-group">
+                <label>Foto de la prenda:</label>
+                <input 
+                  id="file-input"
+                  type="file" 
+                  accept="image/*"
+                  className="form-input"
+                  required
+                  onChange={e => setNuevoProducto({...nuevoProducto, imagen: e.target.files[0]})}
+                />
+              </div>
 
-            <button type="submit" className="btn-submit">
-              ✨ Publicar Tejido
+              <button type="submit" className="btn-submit">
+                ✨ Publicar Tejido
+              </button>
+            </form>
+
+            <button className="btn-logout" onClick={handleLogout}>
+              🔒 Cerrar Sesión de Administrador
             </button>
-          </form>
+          </section>
+        )}
 
+        {/* PIE DE PÁGINA CON EL CANDADO SECRETO */}
+        <footer className="footer">
+          <p>© {new Date().getFullYear()} Kukiku Tejidos. Todos los derechos reservados.</p>
+          <button 
+            className="btn-lock" 
+            onClick={() => setIsModalOpen(true)}
+            title="Acceso Administración"
+          >
+            {isAdmin ? '🔓' : '🔒'}
+          </button>
+        </footer>
 
-
-        </section>
+        {/* MODAL DE LOGIN (Sólo si isModalOpen es true) */}
+        {isModalOpen && (
+          <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+            {/* stopPropagation evita que se cierre el modal al hacer clic dentro de la caja blanca */}
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+              <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>✕</button>
+              <h3>Acceso de Estela 🧶</h3>
+              
+              <form onSubmit={handleLoginSubmit} className="admin-form" style={{ boxShadow: 'none', padding: 0, margin: 0 }}>
+                <div className="form-group">
+                  <label>Contraseña:</label>
+                  <input 
+                    type="password" 
+                    placeholder="Contraseña" 
+                    className="form-input"
+                    required
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+                <button type="submit" className="btn-submit">Ingresar</button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </>
   )
