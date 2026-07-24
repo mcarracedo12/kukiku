@@ -3,6 +3,8 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer'); // Librería para procesar archivos
+const jwt = require('jsonwebtoken')
+const SECRET_KEY = 'agustin'
 
 const app = express();
 const PORT = 5000;
@@ -10,6 +12,20 @@ const JSON_PATH = path.join(__dirname, 'productos.json');
 
 app.use(cors());
 app.use(express.json());
+
+// Endpoint de autenticación
+app.post('/api/login', (req, res) => {
+  const { password } = req.body
+
+  // Validamos la clave en el SERVIDOR (no en el cliente)
+  if (password === 'estela123') { // Más adelante la podemos llevar a una variable de entorno (.env)
+    // Firmamos el token JWT (dura 2 horas por ejemplo)
+    const token = jwt.sign({ role: 'admin' }, SECRET_KEY, { expiresIn: '2h' })
+    return res.json({ token })
+  }
+
+  return res.status(401).json({ error: 'Contraseña incorrecta' })
+})
 
 // --- CONFIGURACIÓN DE MULTER (Subida de fotos) ---
 const storage = multer.diskStorage({
@@ -66,6 +82,25 @@ const guardarProductos = (productos) => {
   }
 };
 
+// Middleware para verificar token JWT
+const verificarToken = (req, res, next) => {
+  const bearerHeader = req.headers['authorization']
+
+  if (typeof bearerHeader !== 'undefined') {
+    const token = bearerHeader.split(' ')[1] // Formato: "Bearer TOKEN"
+    
+    jwt.verify(token, SECRET_KEY, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ error: 'Token inválido o expirado' })
+      }
+      req.user = decoded
+      next() // Todo ok, pasa a la ruta
+    })
+  } else {
+    res.status(401).json({ error: 'Acceso no autorizado: falta token' })
+  }
+}
+
 // --- RUTAS DE LA API ---
 
 // 1. GET: Traer todos los productos
@@ -76,7 +111,7 @@ app.get('/api/productos', (req, res) => {
 
 // 2. POST: Agregar producto con foto real (Multer)
 // 'imagen' es el nombre del campo que enviará el formulario del front
-app.post('/api/productos', upload.single('imagen'), (req, res) => {
+app.post('/api/productos', verificarToken, upload.single('imagen'), (req, res) => {
   const productos = leerProductos();
   
   // Si se subió un archivo, multer nos da sus datos en req.file
@@ -86,7 +121,8 @@ app.post('/api/productos', upload.single('imagen'), (req, res) => {
     id: Date.now(),
     nombre: req.body.nombre,
     descripcion: req.body.descripcion,
-    imagen: nombreImagen // Guardamos el nombre limpio que generó el backend
+    imagen: nombreImagen, // Guardamos el nombre limpio que generó el backend
+    precio: req.body.precio
   };
 
   productos.push(nuevoProducto);
@@ -96,7 +132,7 @@ app.post('/api/productos', upload.single('imagen'), (req, res) => {
 });
 
 // 3. PUT: Modificar un producto
-app.put('/api/productos/:id', (req, res) => {
+app.put('/api/productos/:id', verificarToken, (req, res) => {
   const id = parseInt(req.params.id);
   let productos = leerProductos();
   const index = productos.findIndex(p => p.id === id);
@@ -108,7 +144,8 @@ app.put('/api/productos/:id', (req, res) => {
   productos[index] = {
     ...productos[index],
     nombre: req.body.nombre || productos[index].nombre,
-    descripcion: req.body.descripcion || productos[index].descripcion
+    descripcion: req.body.descripcion || productos[index].descripcion,
+    precio: req.body.precio
     // Por ahora no modificamos la foto para ir paso a paso
   };
 
@@ -117,7 +154,7 @@ app.put('/api/productos/:id', (req, res) => {
 });
 
 // 4. DELETE: Eliminar un producto (Arreglado para coincidencia de tipos)
-app.delete('/api/productos/:id', (req, res) => {
+app.delete('/api/productos/:id',verificarToken, (req, res) => {
   const id = req.params.id;
   let productos = leerProductos();
   

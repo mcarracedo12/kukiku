@@ -2,55 +2,92 @@
   {
     "id": 1,
     "nombre": "Polerones",
-    "imagen": "polerones.png",
-    "descripcion": "Polerones abrigados tejidos a mano, ideales para el invierno profundo."
+    "imagen": "../../public/productos/polerones.png",
+    "descripcion": "Polerones abrigados tejidos a mano, ideales para el invierno profundo.",
+    "precio": 35000
   },
   {
     "id": 2,
     "nombre": "Pullover",
-    "imagen": "pullover.png",
-    "descripcion": "Pullovers clásicos con diseños únicos y calce cómodo."
+    "imagen": "../../public/productos/pullover.png",
+    "descripcion": "Pullovers clásicos con diseños únicos y calce cómodo.",
+    "precio": 35000
   },
   {
     "id": 3,
     "nombre": "Chalecos",
-    "imagen": "chalecos.png",
-    "descripcion": "Chalecos versátiles para usar sobre camisas o remeras."
+    "imagen": "../../public/productos/chalecos.png",
+    "descripcion": "Chalecos versátiles para usar sobre camisas o remeras.",
+    "precio": 30000
   },
   {
     "id": 4,
     "nombre": "Gorritos",
-    "imagen": "gorritos.png",
-    "descripcion": "Gorritos de lana súper suaves para protegerte del frío."
+    "imagen": "../../public/productos/gorritos.png",
+    "descripcion": "Gorritos de lana súper suaves para protegerte del frío.",
+    "precio": 15000
   },
   {
     "id": 5,
     "nombre": "Bufandas",
-    "imagen": "bufandas.png",
-    "descripcion": "Bufandas largas y abrigadas con terminaciones artesanales."
+    "imagen": "../../public/productos/bufandas.png",
+    "descripcion": "Bufandas largas y abrigadas con terminaciones artesanales.",
+    "precio": 0
   },
   {
     "id": 6,
     "nombre": "Chalinas",
-    "imagen": "chalinas.png",
-    "descripcion": "Chalinas livianas, el accesorio perfecto para media estación."
+    "imagen": "../../public/productos/chalinas.png",
+    "descripcion": "Chalinas livianas, el accesorio perfecto para media estación.",
+    "precio": 4500
   },
   {
     "id": 7,
     "nombre": "Guantes",
-    "imagen": "guantes.png",
-    "descripcion": "Guantes tejidos fijos que se adaptan a tus manos."
+    "imagen": "../../public/productos/guantes.png",
+    "descripcion": "Guantes tejidos fijos que se adaptan a tus manos.",
+    "precio": 15000
   },
   {
     "id": 9,
     "nombre": "Polainas",
-    "imagen": "polainas.png",
-    "descripcion": "Polainas cómodas para sumar estilo y calor a tus piernas."
+    "imagen": "../../public/productos/polainas.png",
+    "descripcion": "Polainas cómodas para sumar estilo y calor a tus piernas.",
+    "precio": 20000
   },
   {
     "id": 10,
     "nombre": "Musculosas",
-    "imagen": "musculosas.png",
-    "descripcion": "Musculosas tejidas en hilo, frescas y caladas para los días lindos."
+    "imagen": "../../public/productos/musculosas.png",
+    "descripcion": "Musculosas tejidas en hilo, frescas y caladas para los días lindos.",
+    "precio": 25000
+  },
+  {
+    "id": 1784829127126,
+    "nombre": "Lana",
+    "descripcion": "Rosa",
+    "imagen": "placeholder.png",
+    "precio": 10
+  },
+  {
+    "id": 1784851889989,
+    "nombre": "saquito",
+    "descripcion": "",
+    "imagen": "placeholder.png",
+    "precio": 45000
+  },
+  {
+    "id": 1784856795847,
+    "nombre": "test",
+    "descripcion": "",
+    "imagen": "placeholder.png",
+    "precio": "12"
+  },
+  {
+    "id": 1784856844657,
+    "nombre": "a veeer",
+    "descripcion": "",
+    "imagen": "placeholder.png",
+    "precio": "12"
   }
 ]
