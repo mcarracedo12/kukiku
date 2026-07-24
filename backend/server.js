@@ -1,14 +1,19 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer'); // Librería para procesar archivos
 const jwt = require('jsonwebtoken')
-const SECRET_KEY = 'agustin'
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT ||5000;
 const JSON_PATH = path.join(__dirname, 'productos.json');
+
+let ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'estela123';
+const SECRET_KEY = process.env.SECRET_KEY || 'agustin';
+const PREGUNTA_SEGURIDAD = process.env.PREGUNTA_SEGURIDAD || '¿Nombre de tu perrita (en diminutivo)?';
+const RESPUESTA_CORRECTA = process.env.RESPUESTA_CORRECTA || 'Cris';
 
 app.use(cors());
 app.use(express.json());
@@ -16,16 +21,33 @@ app.use(express.json());
 // Endpoint de autenticación
 app.post('/api/login', (req, res) => {
   const { password } = req.body
-
   // Validamos la clave en el SERVIDOR (no en el cliente)
-  if (password === 'estela123') { // Más adelante la podemos llevar a una variable de entorno (.env)
+  if (password === ADMIN_PASSWORD) { // Más adelante la podemos llevar a una variable de entorno (.env)
     // Firmamos el token JWT (dura 2 horas por ejemplo)
     const token = jwt.sign({ role: 'admin' }, SECRET_KEY, { expiresIn: '2h' })
     return res.json({ token })
   }
-
   return res.status(401).json({ error: 'Contraseña incorrecta' })
-})
+});
+
+// Endpoint para obtener la pregunta de seguridad
+app.get('/api/recuperar-pregunta', (req, res) => {
+  res.json({ pregunta: PREGUNTA_SEGURIDAD });
+});
+
+// Endpoint de reseteo de contraseñas 
+app.post('/api/reset-password', (req, res)=> {
+  const {respuesta, nuevaPassword } = req.body;
+  if(!respuesta || !nuevaPassword){
+    return res.status(404).json({error: 'Faltan datos obligatorios'});
+  }
+
+  if(respuesta.trim().toLowerCase()=== RESPUESTA_CORRECTA.toLowerCase()){
+    ADMIN_PASSWORD = nuevaPassword;
+    return res.json({mensaje: 'Contraseña actualizada con éxito'});
+  }
+  return res.status(401).json({error: 'Respuesta incorrecta'});
+});
 
 // --- CONFIGURACIÓN DE MULTER (Subida de fotos) ---
 const storage = multer.diskStorage({

@@ -10,6 +10,7 @@ frontend/.env.*.local
 
 # --- Dependencias del Backend ---
 backend/node_modules/
+backend/.env
 
 # --- Logs de error ---
 logs
