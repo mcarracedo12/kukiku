@@ -4,26 +4,47 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer'); // Librería para procesar archivos
-const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = process.env.PORT ||5000;
+const SECRET_KEY = process.env.SECRET_KEY;
+const CONFIG_PATH = path.join(__dirname, 'config.json');
 const JSON_PATH = path.join(__dirname, 'productos.json');
 
-let ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'estela123';
-const SECRET_KEY = process.env.SECRET_KEY || 'agustin';
-const PREGUNTA_SEGURIDAD = process.env.PREGUNTA_SEGURIDAD || '¿Nombre de tu perrita (en diminutivo)?';
-const RESPUESTA_CORRECTA = process.env.RESPUESTA_CORRECTA || 'Cris';
+// --- FUNCIONES AUXILIARES DE CONFIGURACIÓN ---
+const leerConfig = () => {
+  try {
+    const data = fs.readFileSync(CONFIG_PATH, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("Error al leer config.json:", error);
+    return null;
+  }
+};
+
+const guardarConfig = (config) => {
+  try {
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
+  } catch (error) {
+    console.error("Error al guardar config.json:", error);
+  }
+};
 
 app.use(cors());
 app.use(express.json());
 
 // Endpoint de autenticación
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
   const { password } = req.body
-  // Validamos la clave en el SERVIDOR (no en el cliente)
-  if (password === ADMIN_PASSWORD) { // Más adelante la podemos llevar a una variable de entorno (.env)
-    // Firmamos el token JWT (dura 2 horas por ejemplo)
+  const config = leerConfig();
+  if (!config) {
+    return res.status(500).json({ error: "Error de configuracion en el servidor" });
+  }
+  const esCorrecta = await bcrypt.compare(password, config.adminPasswordHash);
+
+  if (esCorrecta) {
     const token = jwt.sign({ role: 'admin' }, SECRET_KEY, { expiresIn: '2h' })
     return res.json({ token })
   }
@@ -32,21 +53,26 @@ app.post('/api/login', (req, res) => {
 
 // Endpoint para obtener la pregunta de seguridad
 app.get('/api/recuperar-pregunta', (req, res) => {
-  res.json({ pregunta: PREGUNTA_SEGURIDAD });
+  const config = leerConfig();
+  if (!config) return res.status(500).json({ error: "Error en el servidor" })
+  return res.json({ pregunta: config.preguntaSeguridad });
 });
 
-// Endpoint de reseteo de contraseñas 
-app.post('/api/reset-password', (req, res)=> {
-  const {respuesta, nuevaPassword } = req.body;
-  if(!respuesta || !nuevaPassword){
-    return res.status(404).json({error: 'Faltan datos obligatorios'});
+//Endpoint de reseteo de contraseña
+app.post('/api/reset-password', async (req, res) => {
+  const { respuesta, nuevaPassword } = req.body;
+  if (!respuesta || !nuevaPassword) return res.status(400).json({ error: "Faltan datos obligatorios" })
+  const config = leerConfig();
+  if (!config) return res.status(500).json({ error: "Error en el servidor" })
+  const respuestaLimpia = respuesta.trim().toLowerCase();
+  const esRespuestaValida = await bcrypt.compare(respuestaLimpia, config.respuestaSeguridadHash);
+  if (esRespuestaValida) {
+    const nuevoPasswordHash = await bcrypt.hash(nuevaPassword, 10);
+    config.adminPasswordHash = nuevoPasswordHash;
+    guardarConfig(config);
+    return res.json({ mensaje: "Contraseña actualizada con exito" });
   }
-
-  if(respuesta.trim().toLowerCase()=== RESPUESTA_CORRECTA.toLowerCase()){
-    ADMIN_PASSWORD = nuevaPassword;
-    return res.json({mensaje: 'Contraseña actualizada con éxito'});
-  }
-  return res.status(401).json({error: 'Respuesta incorrecta'});
+  return res.status(401).json({ error: "Respuesta de seguridad incorrecta" })
 });
 
 // --- CONFIGURACIÓN DE MULTER (Subida de fotos) ---
@@ -54,7 +80,7 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // Apuntamos directo a la carpeta public del frontend
     const dir = path.join(__dirname, '..', 'frontend', 'public', 'productos');
-    
+
     // Si por alguna razón la carpeta no existe, la creamos
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -65,7 +91,7 @@ const storage = multer.diskStorage({
     // Tomamos el nombre del producto desde el "body" que manda el formulario.
     // Si viene vacío por seguridad, usamos un timestamp temporal.
     const nombreProducto = req.body.nombre || 'producto';
-    
+
     // Limpiamos el nombre: pasamos a minúsculas, sacamos tildes, espacios y caracteres raros
     const nombreLimpio = nombreProducto
       .toLowerCase()
@@ -77,7 +103,7 @@ const storage = multer.diskStorage({
 
     // Obtenemos la extensión del archivo original (ej: .jpg, .png)
     const ext = path.extname(file.originalname);
-    
+
     // El nombre final será: "saco-merino-1718923487.jpg" (agregamos timestamp para evitar colisiones de caché)
     cb(null, `${nombreLimpio}-${Date.now()}${ext}`);
   }
@@ -107,16 +133,14 @@ const guardarProductos = (productos) => {
 // Middleware para verificar token JWT
 const verificarToken = (req, res, next) => {
   const bearerHeader = req.headers['authorization']
-
   if (typeof bearerHeader !== 'undefined') {
     const token = bearerHeader.split(' ')[1] // Formato: "Bearer TOKEN"
-    
     jwt.verify(token, SECRET_KEY, (err, decoded) => {
       if (err) {
         return res.status(403).json({ error: 'Token inválido o expirado' })
       }
       req.user = decoded
-      next() // Todo ok, pasa a la ruta
+      next() 
     })
   } else {
     res.status(401).json({ error: 'Acceso no autorizado: falta token' })
@@ -135,7 +159,7 @@ app.get('/api/productos', (req, res) => {
 // 'imagen' es el nombre del campo que enviará el formulario del front
 app.post('/api/productos', verificarToken, upload.single('imagen'), (req, res) => {
   const productos = leerProductos();
-  
+
   // Si se subió un archivo, multer nos da sus datos en req.file
   const nombreImagen = req.file ? req.file.filename : 'placeholder.png';
 
@@ -176,13 +200,13 @@ app.put('/api/productos/:id', verificarToken, (req, res) => {
 });
 
 // 4. DELETE: Eliminar un producto (Arreglado para coincidencia de tipos)
-app.delete('/api/productos/:id',verificarToken, (req, res) => {
+app.delete('/api/productos/:id', verificarToken, (req, res) => {
   const id = req.params.id;
   let productos = leerProductos();
-  
+
   // Buscamos si existe para poder borrar físicamente la foto antes de sacar el registro del JSON
   const productoAEliminar = productos.find(p => String(p.id) === String(id));
-  
+
   if (!productoAEliminar) {
     return res.status(404).json({ error: "Producto no encontrado" });
   }
@@ -197,7 +221,7 @@ app.delete('/api/productos/:id',verificarToken, (req, res) => {
 
   const filtrados = productos.filter(p => String(p.id) !== String(id));
   guardarProductos(filtrados);
-  
+
   res.json({ mensaje: "Producto eliminado con éxito" });
 });
 

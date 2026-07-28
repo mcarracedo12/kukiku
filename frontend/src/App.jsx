@@ -29,7 +29,7 @@ function App() {
 
   const cargarProductos = () => {
     obtenerProductosAPI()
-      .then(response => response.json())
+      .then(response => response)
       .then(data => setProductos(data))
       .catch(error => console.error("Error al traer productos:", error))
   }

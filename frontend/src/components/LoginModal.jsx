@@ -1,61 +1,61 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { loginAPI, obtenerPreguntaSeguridadAPI, resetPasswordAPI } from '../services/api'
 
-function LoginModal({ isAdmin, setIsAdmin, isModalOpen, setIsModalOpen }) {
+function LoginModal({ setIsAdmin, isModalOpen, setIsModalOpen }) {
     const [password, setPassword] = useState('')
     const [modoRecuperar, setModoRecuperar] = useState(false)
+    const [pregunta, setPregunta] = useState('')
     const [respuesta, setRespuesta] = useState('')
     const [nuevaPassword, setNuevaPassword] = useState('')
+    const [errorMsg, setErrorMsg] = useState('')
+
+    // Limpia todo al cerrar el modal
+    const cerrarModal = () => {
+        setIsModalOpen(false)
+        setModoRecuperar(false)
+        setPassword('')
+        setRespuesta('')
+        setNuevaPassword('')
+        setErrorMsg('')
+    }
+
+    useEffect(() => {
+        if (modoRecuperar) {
+            obtenerPreguntaSeguridadAPI()
+                .then(data => setPregunta(data.pregunta))
+                .catch(err => setErrorMsg(err.message))
+        }
+    }, [modoRecuperar])
 
     const handleLoginSubmit = (e) => {
         e.preventDefault()
-
-        fetch('http://localhost:5000/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ password })
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json()
-                } else {
-                    throw new Error('Contraseña incorrecta')
-                }
-            })
+        setErrorMsg('')
+        loginAPI(password)
             .then(data => {
-                // Guardamos el token en el navegador de Estela
                 localStorage.setItem('token', data.token)
                 setIsAdmin(true)
-                setIsModalOpen(false)
-                setPassword('')
+                cerrarModal();
             })
-            .catch(error => alert(error))
+            .catch(err => setErrorMsg(err.message))
     }
 
     const handleResetSubmit = (e) => {
         e.preventDefault()
-        fetch('http://localhost:5000/api/reset-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ respuesta, nuevaPassword })
-        })
-            .then(res => res.ok ? res.json() : Promise.reject('Respuesta incorrecta'))
+        setErrorMsg('')
+        resetPasswordAPI(respuesta, nuevaPassword)
             .then(() => {
                 alert('¡Contraseña cambiada con éxito! Ya podés ingresar.')
-                setModoRecuperar(false)
-                setRespuesta('')
-                setNuevaPassword('')
-                setIsModalOpen(false)
+                cerrarModal();
             })
-            .catch(err => alert(err))
+            .catch(err => setErrorMsg(err.message))
     }
+    if (!isModalOpen) return null
 
 
     return (
-        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+        <div className="modal-overlay" onClick={() => cerrarModal()}>
             <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>✕</button>
+                <button className="btn-close-modal" onClick={() => cerrarModal()}>✕</button>
                 <h3>{modoRecuperar ? 'Recuperar contraseña 🔑' : 'Acceso de Estela 🧶'}</h3>
                 {!modoRecuperar ? (
                     <form onSubmit={handleLoginSubmit} className="admin-form" style={{ boxShadow: 'none', padding: 0, margin: 0 }}>
@@ -75,7 +75,7 @@ function LoginModal({ isAdmin, setIsAdmin, isModalOpen, setIsModalOpen }) {
                         <button
                             type="button"
                             style={{ background: 'none', border: 'none', color: '#666', marginTop: '10px', cursor: 'pointer', fontSize: '0.85rem' }}
-                            onClick={() => setModoRecuperar(true)}
+                            onClick={() => {setErrorMsg(''); setModoRecuperar(true)}}
                         >
                             ¿Olvidaste tu contraseña?
                         </button>
@@ -86,7 +86,7 @@ function LoginModal({ isAdmin, setIsAdmin, isModalOpen, setIsModalOpen }) {
                         <form onSubmit={handleResetSubmit} className="admin-form" style={{ boxShadow: 'none', padding: 0, margin: 0 }}>
                             <div className="form-group">
                                 <label>Pregunta de Seguridad:</label>
-                                <p style={{ fontWeight: 'bold', margin: '5px 0' }}>¿Cómo se llama tu primera mascota?</p>
+                                <p style={{ fontWeight: 'bold', margin: '5px 0' }}>{pregunta}</p>
                                 <input
                                     type="text"
                                     placeholder="Tu respuesta"
@@ -111,7 +111,7 @@ function LoginModal({ isAdmin, setIsAdmin, isModalOpen, setIsModalOpen }) {
                             <button
                                 type="button"
                                 style={{ background: 'none', border: 'none', color: '#666', marginTop: '10px', cursor: 'pointer', fontSize: '0.85rem' }}
-                                onClick={() => setModoRecuperar(false)}
+                                onClick={() => {setErrorMsg(''); setModoRecuperar(false)}}
                             >
                                 Volver al ingreso
                             </button>

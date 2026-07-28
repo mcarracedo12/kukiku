@@ -61,33 +61,5 @@
     "imagen": "../../public/productos/musculosas.png",
     "descripcion": "Musculosas tejidas en hilo, frescas y caladas para los días lindos.",
     "precio": 25000
-  },
-  {
-    "id": 1784829127126,
-    "nombre": "Lana",
-    "descripcion": "Rosa",
-    "imagen": "placeholder.png",
-    "precio": 10
-  },
-  {
-    "id": 1784851889989,
-    "nombre": "saquito",
-    "descripcion": "",
-    "imagen": "placeholder.png",
-    "precio": 45000
-  },
-  {
-    "id": 1784856795847,
-    "nombre": "test",
-    "descripcion": "",
-    "imagen": "placeholder.png",
-    "precio": "12"
-  },
-  {
-    "id": 1784856844657,
-    "nombre": "a veeer",
-    "descripcion": "",
-    "imagen": "placeholder.png",
-    "precio": "12"
   }
 ]

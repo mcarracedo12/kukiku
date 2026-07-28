@@ -11,6 +11,8 @@ frontend/.env.*.local
 # --- Dependencias del Backend ---
 backend/node_modules/
 backend/.env
+backend/config.json
+backend/generarHash.js
 
 # --- Logs de error ---
 logs
