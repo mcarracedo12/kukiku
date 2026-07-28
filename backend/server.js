@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { Resend } = require('resend');
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -12,6 +13,8 @@ const PORT = process.env.PORT ||5000;
 const SECRET_KEY = process.env.SECRET_KEY;
 const CONFIG_PATH = path.join(__dirname, 'config.json');
 const JSON_PATH = path.join(__dirname, 'productos.json');
+let contadorVisitas = 0;
+const resend = new Resend('re_RYXNXXH1_NXkztzL6ngL4bqp9ehtTeWHi')
 
 // --- FUNCIONES AUXILIARES DE CONFIGURACIÓN ---
 const leerConfig = () => {
@@ -88,10 +91,8 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: function (req, file, cb) {
-    // Tomamos el nombre del producto desde el "body" que manda el formulario.
-    // Si viene vacío por seguridad, usamos un timestamp temporal.
+   
     const nombreProducto = req.body.nombre || 'producto';
-
     // Limpiamos el nombre: pasamos a minúsculas, sacamos tildes, espacios y caracteres raros
     const nombreLimpio = nombreProducto
       .toLowerCase()
@@ -227,4 +228,44 @@ app.delete('/api/productos/:id', verificarToken, (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
+});
+
+
+
+
+// Endpoint público para registrar cada visita
+app.post('/api/visitas', (req, res) => {
+  contadorVisitas++;
+  res.json({ success: true });
+});
+
+// Endpoint protegido para consultar el total (solo admin)
+app.get('/api/visitas', verificarToken, (req, res) => {
+  res.json({ totalVisitas: contadorVisitas });
+});
+
+app.post('/api/contacto-dev', async (req, res) => {
+    const { mensaje, contacto } = req.body;
+
+    if (!mensaje) {
+        return res.status(400).json({ error: "El mensaje está vacío" });
+    }
+
+    try {
+        await resend.emails.send({
+            from: 'onboarding@resend.dev', // Dominio de prueba gratuito que te da Resend
+            to: 'tu_mail_personal@gmail.com', // 👈 ACÁ PONES TU MAIL PERSONAL
+            subject: '📩 Nuevo mensaje de la app de Tejidos',
+            html: `
+                <h2>¡Tenés un nuevo mensaje de la web!</h2>
+                <p><strong>Mensaje:</strong> ${mensaje}</p>
+                <p><strong>Contacto/Remitente:</strong> ${contacto || 'No especificado'}</p>
+            `
+        });
+
+        return res.json({ exito: true });
+    } catch (error) {
+        console.error("Error enviando el mail:", error);
+        return res.status(500).json({ error: "No se pudo enviar el correo" });
+    }
 });

@@ -93,3 +93,25 @@ export const eliminarProductoAPI = async (id, onSessionExpired) => {
     })
     return procesarRespuesta(res, onSessionExpired)
 }
+
+// Registrar una nueva visita
+export const registrarVisitaAPI = async () => {
+  await fetch(`${API_BASE_URL}/visitas`, { method: 'POST' });
+};
+
+// Consultar el total de visitas (requiere token de admin)
+export const obtenerVisitasAPI = async (token) => {
+  const res = await fetch(`${API_BASE_URL}/visitas`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+};
+
+export const enviarMensajeDevAPI = async (mensaje) => {
+    const res = await fetch(`${API_BASE_URL}/contacto-dev`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensaje })
+    });
+    return res.json();
+};

@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from './components/Header'
 import InfoUbicaciones from './components/InfoUbicaciones'
 import Catalog from './components/Catalog'
 import AdminPanel from './components/AdminPanel'
 import Footer from './components/Footer'
 import LoginModal from './components/LoginModal'
-import {obtenerProductosAPI} from './services/api'
+import { obtenerProductosAPI, registrarVisitaAPI } from './services/api'
 import './App.css'
+
 
 function App() {
   const [productos, setProductos] = useState([])
@@ -18,8 +19,9 @@ function App() {
   }
 
   useEffect(() => {
-    cargarProductos()
-  }, [])
+    registrarVisitaAPI();
+    cargarProductos();
+  }, []);
 
   const handleSesionExpirada = () => {
     alert('Tu sesión ha expirado por seguridad. Por favor, volvé a ingresar.')

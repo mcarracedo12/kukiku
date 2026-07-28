@@ -1,19 +1,27 @@
-import React, { useState } from 'react'
-import { agregarProductoAPI } from '../services/api'
+import React, { useState, useEffect } from 'react'
+import { agregarProductoAPI, obtenerVisitasAPI } from '../services/api'
 
 function AdminPanel({ handleLogout, cargarProductos, handleSesionExpirada }) {
     const [nuevoProducto, setNuevoProducto] = useState({ nombre: '', descripcion: '', imagen: null, precio: '' })
-
+    const [visitas, setVisitas] = useState(0);
+    const token = localStorage.getItem('token')
+    useEffect(() => {
+        const cargarVisitas = async () => {
+            const data = await obtenerVisitasAPI(token);
+            if (data.totalVisitas !== undefined) {
+                setVisitas(data.totalVisitas);
+            }
+        };
+        cargarVisitas();
+    }, [token]);
     const handleGuardar = (e) => {
         e.preventDefault()
-
         const precioNumerico = Number(nuevoProducto.precio)
-          if (isNaN(precioNumerico) || precioNumerico <= 0) {
+        if (isNaN(precioNumerico) || precioNumerico <= 0) {
             alert("Por favor, ingresá un precio numérico válido.")
             return
         }
         const formData = new FormData()
-        
         formData.append('nombre', nuevoProducto.nombre)
         formData.append('descripcion', nuevoProducto.descripcion)
         formData.append('imagen', nuevoProducto.imagen)
@@ -32,12 +40,7 @@ function AdminPanel({ handleLogout, cargarProductos, handleSesionExpirada }) {
                 console.error('Error al agregar producto:', error)
                 alert('Error de conexión')
             })
-
-
-
     }
-
-
     return (
         <section className="admin-panel">
             <h2>Panel de Administración 🎨</h2>
@@ -54,7 +57,6 @@ function AdminPanel({ handleLogout, cargarProductos, handleSesionExpirada }) {
                         onChange={e => setNuevoProducto({ ...nuevoProducto, nombre: e.target.value })}
                     />
                 </div>
-
                 <div className="form-group">
                     <label>Descripción / Talles / Colores:</label>
                     <textarea
@@ -98,6 +100,9 @@ function AdminPanel({ handleLogout, cargarProductos, handleSesionExpirada }) {
             <button className="btn-logout" onClick={handleLogout}>
                 🔒 Cerrar Sesión de Administrador
             </button>
+            <div className="visitas-badge">
+                👁️ Visitas totales: {visitas}
+            </div>
         </section>
 
     )
