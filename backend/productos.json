@@ -46,7 +46,7 @@
     "nombre": "Guantes",
     "imagen": "../../public/productos/guantes.png",
     "descripcion": "Guantes tejidos fijos que se adaptan a tus manos.",
-    "precio": 15000
+    "precio": 25000
   },
   {
     "id": 9,

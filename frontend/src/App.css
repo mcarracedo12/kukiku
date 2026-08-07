@@ -187,12 +187,24 @@ h1 {
 
 
 /* Contenedor del Panel de Administración */
+
 .admin-panel {
   margin: 12px auto;
   padding: 40px 20px;
   border-radius: 24px;
-  /* Degradado mágico usando verde agua, fucsia alegre y violeta */
-  background: linear-gradient(135deg, var(--accent-verde) 0%, var(--accent-fucsia) 50%, var(--text-main) 100%);
+  
+  /* Gradiente semi-transparente (75% de opacidad en cada color) */
+  background: linear-gradient(
+    135deg, 
+    rgba(128, 229, 208, 0.50) 0%,   /* Verde agua semi-transparente */
+    rgba(255, 126, 187, 0.50) 50%,  /* Fucsia semi-transparente */
+    rgba(61, 43, 69, 0.50) 100%     /* Violeta/Berenjena semi-transparente */
+  );
+  
+  /* Efecto de vidrio esmerilado sobre la foto de fondo */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Filito de luz alrededor */
+  
   box-shadow: 0 10px 30px rgba(131, 58, 180, 0.15);
   align-items: center;
 }
@@ -214,10 +226,11 @@ h1 {
 }
 
 /* El Formulario - Caja blanca flotante */
+
 .admin-form {
   max-width: 500px;
   margin: 0 auto 40px auto;
-  background-color: #ffffff; /* Caja blanca pura */
+  background-color: rgba(255, 255, 255, 0.8); /* Blanco al 90% en lugar de #ffffff */
   padding: 30px;
   border-radius: 20px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
@@ -320,7 +333,7 @@ h1 {
   border: 1px solid var(--border);
   font-size: 1.1rem;
   padding: 8px 12px;
-  border-radius: 50%; /* Lo hace circular */
+  border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(125, 104, 133, 0.1);
   transition: all 0.3s ease;

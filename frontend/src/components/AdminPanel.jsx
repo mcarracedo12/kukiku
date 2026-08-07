@@ -38,7 +38,8 @@ function AdminPanel({ handleLogout, cargarProductos, handleSesionExpirada }) {
             })
             .catch(error => {
                 console.error('Error al agregar producto:', error)
-                alert('Error de conexión')
+                // Muestra el mensaje real ("La imagen supera el límite", "Formato no permitido", etc.)
+                alert(error.message || 'Error al agregar el producto')
             })
     }
     return (

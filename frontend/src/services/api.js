@@ -1,110 +1,115 @@
-// const API_BASE_URL = 'http://localhost:5000/api'
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-
-// Función auxiliar para obtener el token desde localStorage
 const getAuthHeaders = () => {
-    const token = localStorage.getItem('token')
-    return {
-        'Authorization': `Bearer ${token}`
-    }
-}
+    const token = localStorage.getItem('token');
+    return { 'Authorization': `Bearer ${token}` };
+};
 
-// Función auxiliar para detectar vencimiento de sesión
 const procesarRespuesta = async (response, onSessionExpired) => {
     if (response.status === 401 || response.status === 403) {
-        if (onSessionExpired) onSessionExpired()
-        throw new Error('Tu sesión expiró. Por favor, volvé a ingresar.')
+        localStorage.removeItem('token');
+        if (onSessionExpired) onSessionExpired();
+        throw new Error('Tu sesión expiró o no tenés permiso. Volvé a ingresar.');
     }
-    if(!response.ok){
-        throw new Error('Error en la peticion')
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data.error || 'Ocurrió un error en el servidor');
     }
-    return response
-}
 
+    return data;
+};
 
-// Autenticación y recuperación
+// --- AUTENTICACIÓN Y RECUPERACIÓN ---
 export const loginAPI = async (password) => {
     const res = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
-    })
+    });
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}))
-        throw new Error(errorData.error || 'Contraseña incorrecta')
+        throw new Error(data.error || 'Error al iniciar sesión'); 
     }
-    return res.json()
-}
+    return data;
+};
 
 export const obtenerPreguntaSeguridadAPI = async () => {
-    const res = await fetch(`${API_BASE_URL}/recuperar-pregunta`)
-    if (!res.ok) throw new Error('No se pudo obtener la pregunta de seguridad')
-    return res.json()
-}
+    const res = await fetch(`${API_BASE_URL}/recuperar-pregunta`);
+    return procesarRespuesta(res);
+};
 
 export const resetPasswordAPI = async (respuesta, nuevaPassword) => {
     const res = await fetch(`${API_BASE_URL}/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ respuesta, nuevaPassword })
-    })
+    });
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}))
-        throw new Error(errorData.error || 'Respuesta incorrecta')
+        throw new Error(data.error || 'Error al restablecer la contraseña');
     }
-    return res.json()
-}
+    return data;
+};
 
-// 1. Petición POST (Agregar producto con FormData)
+// --- PRODUCTOS ---
 export const agregarProductoAPI = async (formData, onSessionExpired) => {
     const res = await fetch(`${API_BASE_URL}/productos`, {
         method: 'POST',
-        headers: getAuthHeaders(), // Se adjunta el token JWT
+        headers: getAuthHeaders(),
         body: formData
-    })
-    return procesarRespuesta(res, onSessionExpired)
-}
+    });
 
-// 2. Peticion GET (Consultar productos)
-export const obtenerProductosAPI= async () =>{
-    const res= await fetch(`${API_BASE_URL}/productos`)
-    return res.json()
-} 
+    if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('token');
+        if (onSessionExpired) onSessionExpired();
+        throw new Error('Tu sesión expiró o no tenés permiso. Volvé a ingresar.');
+    }
 
-// 3. Petición PUT (Modificar precio/datos)
+    if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Error al guardar el producto');
+    }
+
+    return res;
+};
+
+export const obtenerProductosAPI = async () => {
+    const res = await fetch(`${API_BASE_URL}/productos`);
+    return procesarRespuesta(res);
+}; 
+
 export const modificarProductoAPI = async (id, datosProducto, onSessionExpired) => {
     const res = await fetch(`${API_BASE_URL}/productos/${id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            ...getAuthHeaders() // Se adjunta el token JWT
+            ...getAuthHeaders()
         },
         body: JSON.stringify(datosProducto)
-    })
-    return procesarRespuesta(res, onSessionExpired)
-}
+    });
+    return procesarRespuesta(res, onSessionExpired);
+};
 
-// 4. Petición DELETE (Eliminar producto)
 export const eliminarProductoAPI = async (id, onSessionExpired) => {
     const res = await fetch(`${API_BASE_URL}/productos/${id}`, {
         method: 'DELETE',
-        headers: getAuthHeaders() // Se adjunta el token JWT
-    })
-    return procesarRespuesta(res, onSessionExpired)
-}
-
-// Registrar una nueva visita
-export const registrarVisitaAPI = async () => {
-  await fetch(`${API_BASE_URL}/visitas`, { method: 'POST' });
+        headers: getAuthHeaders()
+    });
+    return procesarRespuesta(res, onSessionExpired);
 };
 
-// Consultar el total de visitas (requiere token de admin)
-export const obtenerVisitasAPI = async (token) => {
-  const res = await fetch(`${API_BASE_URL}/visitas`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  return res.json();
+// --- MÉTRICAS Y CONTACTO ---
+export const registrarVisitaAPI = async () => {
+    await fetch(`${API_BASE_URL}/visitas`, { method: 'POST' });
+};
+
+export const obtenerVisitasAPI = async () => {
+    const res = await fetch(`${API_BASE_URL}/visitas`, {
+        headers: getAuthHeaders()
+    });
+    return procesarRespuesta(res);
 };
 
 export const enviarMensajeDevAPI = async (mensaje) => {
@@ -113,5 +118,5 @@ export const enviarMensajeDevAPI = async (mensaje) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mensaje })
     });
-    return res.json();
+    return procesarRespuesta(res);
 };
