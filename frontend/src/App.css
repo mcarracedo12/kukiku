@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@700;800&display=swap');
 /* El texto de envíos en el centro */
 .banner-text {
   font-size: 0.95rem;
@@ -44,6 +45,8 @@
   font-size: 1.5rem;
   color: var(--text-main); /* El texto oscuro berenjena contrasta con el verde */
   text-decoration: none;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.9), 
+               0 0 4px rgba(255, 255, 255, 1);
 }
 
 .insta-link {
@@ -73,9 +76,12 @@
 
 /* Encabezado */
 h1 {
+  font-family: 'Fredoka', cursive, sans-serif;
   font-size: 2.8rem;
+  font-weight: 800;
   color: var(--text-main);
   margin-bottom: 5px;
+  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.9);
 }
 
 .subtitle {
@@ -96,17 +102,19 @@ h1 {
 .producto-card {
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.6); /* Fondo semi-transparente */
+  backdrop-filter: blur(8px);                  /* Vidrio esmerilado sobre la foto de fondo */
   border: 1px solid var(--border);
-  border-radius: 16px; /* Bordes un toque más redondeados, más amigables */
+  border-radius: 16px;
   overflow: hidden;
   padding: 18px;
   text-align: left;
-  box-shadow: 0 4px 12px rgba(125, 104, 133, 0.05); /* Sombra suave con tinte violeta */
+  box-shadow: 0 4px 12px rgba(125, 104, 133, 0.05);
   transition: all 0.3s ease;
 }
 
 .producto-card:hover {
+  background-color: rgba(255, 255, 255, 0.95);
   transform: translateY(-8px);
   box-shadow: 0 12px 24px rgba(125, 104, 133, 0.12);
   border-color: var(--accent-violeta); /* Se ilumina el borde en violeta al hacer hover */
@@ -123,14 +131,17 @@ h1 {
 
 /* Textos dentro de la tarjeta */
 .producto-card h3 {
+  font-family: 'Fredoka', cursive, sans-serif;
   margin: 15px 0 8px 0;
   font-size: 1.35rem;
   color: var(--text-main);
+  text-align: center;
 }
 
 .producto-card p {
   margin: 0;
   font-size: 0.95rem;
+  font-weight: 500;
   color: var(--text-muted);
   line-height: 1.4;
   flex-grow: 1; /* Esto hace que las tarjetas desparejas empujen el botón siempre abajo */
@@ -305,18 +316,24 @@ h1 {
 }
 
 .btn-lock {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border);
+  font-size: 1.1rem;
+  padding: 8px 12px;
+  border-radius: 50%; /* Lo hace circular */
   cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.2s, transform 0.2s;
-  padding: 5px;
+  box-shadow: 0 2px 8px rgba(125, 104, 133, 0.1);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-lock:hover {
-  opacity: 1;
-  transform: scale(1.1);
+  background-color: #ffffff;
+  transform: scale(1.15) rotate(10deg); /* Se agranda y gira un toque */
+  box-shadow: 0 4px 12px rgba(125, 104, 133, 0.25);
+  border-color: var(--accent-fucsia);
 }
 
 /* --- MODAL (Fondo oscuro) --- */
@@ -391,4 +408,70 @@ h1 {
 
 .btn-logout:hover {
   background-color: #e64a4a;
+}
+
+body {
+  /* Crea una capa clara (o blanca) semi-transparente sobre la imagen */
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.5), 
+      rgba(255, 255, 255, 0.5)
+    ), 
+    url('/images/fondo.jpg');
+    
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.subtitle {
+  background: rgba(255, 255, 255, 0.7); /* Fondo blanco casi sólido */
+  color: var(--text-main);              /* Tu color violeta/marrón principal */
+  display: inline-block;
+  padding: 10px 22px;
+  border-radius: 25px;                  /* Estilo píldora como tus ubicaciones */
+  font-weight: 600;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(125, 104, 133, 0.08);
+}
+
+.footer {
+  background-color: rgba(255, 255, 255, 0.5); /* Blanco semi-transparente */
+  backdrop-filter: blur(5px);                  /* Opcional: le da un efecto de vidrio esmerilado tremendo */
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  max-width: 600px;
+  margin: 60px auto 20px auto;
+  box-shadow: 0 6px 18px rgba(125, 104, 133, 0.08);
+}
+
+/* Botón de contacto con el Dev en el Footer */
+.btn-contact-dev {
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text-main);
+  font-family: 'Fredoka', cursive, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 10px 22px;
+  border: 1.5px solid var(--border);
+  border-radius: 25px; /* Estilo píldora */
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(125, 104, 133, 0.08);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-contact-dev:hover {
+  background: linear-gradient(45deg, var(--accent-fucsia), var(--text-main));
+  color: #ffffff;
+  border-color: var(--accent-fucsia);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(225, 48, 108, 0.2);
+}
+
+/* Alineación interna del footer */
+.footer p {
+  margin: 0;
+  font-weight: 500;
 }
