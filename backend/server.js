@@ -249,7 +249,7 @@ app.post('/api/contacto-dev', async (req, res) => {
   try {
     await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: process.env.MAIL_DESTINO || 'tu_mail_personal@gmail.com',
+      to: process.env.MAIL_DESTINO,
       subject: '📩 Nuevo mensaje de la app de Tejidos',
       html: `
         <h2>¡Tenés un nuevo mensaje de la web!</h2>

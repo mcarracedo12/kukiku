@@ -112,11 +112,11 @@ export const obtenerVisitasAPI = async () => {
     return procesarRespuesta(res);
 };
 
-export const enviarMensajeDevAPI = async (mensaje) => {
+export const enviarMensajeDevAPI = async ({ mensaje, contacto }) => {
     const res = await fetch(`${API_BASE_URL}/contacto-dev`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mensaje })
+        body: JSON.stringify({ mensaje, contacto })
     });
     return procesarRespuesta(res);
 };
