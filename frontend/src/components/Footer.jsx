@@ -5,8 +5,14 @@ function Footer({ isAdmin, setIsModalOpen, handleLogout }) {
     const [isDevModalOpen, setIsDevModalOpen] = useState(false);
     return (
         <footer className="footer">
-            <p>© {new Date().getFullYear()} Kukiku Tejidos. Todos los derechos reservados.</p>
-            
+           
+            <button
+                className="btn-lock"
+                onClick={() => isAdmin ? handleLogout() : setIsModalOpen(true)}
+                title={isAdmin ? "Salir de Administración" : "Acceso Administración"}
+            >
+                {isAdmin ? '🔓' : '🔒'}
+            </button>
 
             {!isAdmin && (
                 <button
@@ -17,14 +23,7 @@ function Footer({ isAdmin, setIsModalOpen, handleLogout }) {
                 </button>
             )}
 
-            <button
-                className="btn-lock"
-                onClick={() => isAdmin ? handleLogout() : setIsModalOpen(true)}
-                title={isAdmin ? "Salir de Administración" : "Acceso Administración"}
-            >
-                {isAdmin ? '🔓' : '🔒'}
-            </button>
-
+             <p>© {new Date().getFullYear()} Kukiku Tejidos. Todos los derechos reservados.</p>
 
             <DevContactModal
                 isOpen={isDevModalOpen}
